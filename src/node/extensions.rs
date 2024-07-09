@@ -1,9 +1,15 @@
 use super::{endpoints::NodeEndpoint, NodeError};
 use ergo_lib::{
     chain::transaction::{unsigned::UnsignedTransaction, Transaction},
+    ergo_chain_types::EcPoint,
+    ergotree_interpreter::sigma_protocol::private_input::DlogProverInput,
     ergotree_ir::{
-        chain::{address::NetworkAddress, ergo_box::ErgoBox},
+        chain::{
+            address::{Address, NetworkAddress, NetworkPrefix},
+            ergo_box::ErgoBox,
+        },
         ergo_tree::ErgoTree,
+        sigma_protocol::sigma_boolean::ProveDlog,
     },
 };
 
@@ -84,5 +90,17 @@ impl<'a> NodeExtension<'a> {
             .address()
             .script()
             .unwrap())
+    }
+    /// Get private key for EcPoint if it is in wallet database
+    pub async fn get_private_key(&self, public_key: EcPoint) -> Result<DlogProverInput, NodeError> {
+        let node_info = self.endpoints.root()?.info().await?;
+        let network_prefix = if node_info.network == "mainnet" {
+            NetworkPrefix::Mainnet
+        } else {
+            NetworkPrefix::Testnet
+        };
+        let address =
+            NetworkAddress::new(network_prefix, &Address::P2Pk(ProveDlog::new(public_key)));
+        self.endpoints.wallet()?.get_private_key(&address).await
     }
 }
