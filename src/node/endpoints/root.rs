@@ -17,6 +17,7 @@ impl<'a> RootEndpoint<'a> {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InfoResponse {
+    pub network: String,
     pub difficulty: u64,
     pub full_height: i32,
 }
