@@ -3,6 +3,10 @@ pub mod transaction;
 
 use self::{boxes::BoxesEndpoint, transaction::TransactionEndpoint};
 use crate::node::{process_response, NodeError};
+use ergo_lib::{
+    ergotree_interpreter::sigma_protocol::private_input::DlogProverInput,
+    ergotree_ir::chain::address::NetworkAddress,
+};
 use reqwest::{Client, Url};
 use serde::{Deserialize, Serialize};
 
@@ -73,5 +77,25 @@ impl<'a> WalletEndpoint<'a> {
         )
         .await?;
         Ok(())
+    }
+
+    pub async fn get_private_key(
+        &self,
+        address: &NetworkAddress,
+    ) -> Result<DlogProverInput, NodeError> {
+        let mut url = self.url.clone();
+        url.path_segments_mut()
+            .map_err(|_| NodeError::BaseUrl)?
+            .push("getPrivateKey");
+        let body = serde_json::json!({"address": address.to_base58()});
+        process_response(
+            self.client
+                .post(url)
+                .json(&body)
+                .send()
+                .await
+                .map_err(NodeError::Http)?,
+        )
+        .await
     }
 }
