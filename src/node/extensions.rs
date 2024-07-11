@@ -23,7 +23,7 @@ impl<'a> NodeExtension<'a> {
         Self { endpoints }
     }
 
-    async fn get_utxos(&self) -> Result<Vec<ErgoBox>, NodeError> {
+    pub async fn get_utxos(&self) -> Result<Vec<ErgoBox>, NodeError> {
         Ok(self
             .endpoints
             .wallet()?
