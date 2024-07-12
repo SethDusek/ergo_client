@@ -1,6 +1,7 @@
 pub mod root;
 pub mod script;
 pub mod transactions;
+pub mod utils;
 pub mod wallet;
 
 use self::root::RootEndpoint;
@@ -9,6 +10,7 @@ use self::transactions::TransactionsEndpoint;
 use self::wallet::WalletEndpoint;
 use reqwest::{Client, Url};
 use serde::Serialize;
+use utils::UtilsEndpoint;
 
 use super::NodeError;
 
@@ -57,5 +59,9 @@ impl NodeEndpoint {
 
     pub fn script(&self) -> Result<ScriptEndpoint, NodeError> {
         ScriptEndpoint::new(&self.client, self.url.clone())
+    }
+
+    pub fn utils(&self) -> Result<UtilsEndpoint, NodeError> {
+        UtilsEndpoint::new(&self.client, self.url.clone())
     }
 }

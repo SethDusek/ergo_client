@@ -93,14 +93,7 @@ impl<'a> NodeExtension<'a> {
     }
     /// Get private key for EcPoint if it is in wallet database
     pub async fn get_private_key(&self, public_key: EcPoint) -> Result<DlogProverInput, NodeError> {
-        let node_info = self.endpoints.root()?.info().await?;
-        let network_prefix = if node_info.network == "mainnet" {
-            NetworkPrefix::Mainnet
-        } else {
-            NetworkPrefix::Testnet
-        };
-        let address =
-            NetworkAddress::new(network_prefix, &Address::P2Pk(ProveDlog::new(public_key)));
+        let address = self.endpoints.utils()?.raw_to_address(public_key).await?;
         self.endpoints.wallet()?.get_private_key(&address).await
     }
 }

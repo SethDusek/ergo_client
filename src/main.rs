@@ -12,19 +12,7 @@ pub async fn main() -> anyhow::Result<()> {
     let endpoints = client.endpoints();
     let extensions = client.extensions();
 
-    //dbg!(endpoints.wallet()?.unlock("hello".to_owned()).await?);
-    dbg!(
-        endpoints
-            .wallet()?
-            .get_private_key(
-                &ergo_lib::ergotree_ir::chain::address::NetworkAddress::try_from(String::from(
-                    "3WwkxVkCiN5PKa4CLg72aX2XR53QfGRZmfJxEgiQEqsMmi59ULwq"
-                ))
-                .unwrap()
-            )
-            .await?
-            .w
-    );
+    dbg!(endpoints.wallet()?.unlock("hello".to_owned()).await?);
     // dbg!(endpoints.root()?.info().await?);
     // dbg!(endpoints.wallet()?.status().await?);
     // dbg!(endpoints.wallet()?.boxes()?.unspent(None).await?);
