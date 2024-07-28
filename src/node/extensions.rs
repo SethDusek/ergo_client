@@ -4,12 +4,8 @@ use ergo_lib::{
     ergo_chain_types::EcPoint,
     ergotree_interpreter::sigma_protocol::private_input::DlogProverInput,
     ergotree_ir::{
-        chain::{
-            address::{Address, NetworkAddress, NetworkPrefix},
-            ergo_box::ErgoBox,
-        },
+        chain::{address::NetworkAddress, ergo_box::ErgoBox},
         ergo_tree::ErgoTree,
-        sigma_protocol::sigma_boolean::ProveDlog,
     },
 };
 
