@@ -1,5 +1,6 @@
 pub mod blockchain;
 pub mod root;
+pub mod scan;
 pub mod script;
 pub mod transactions;
 pub mod utils;
@@ -11,6 +12,7 @@ use self::transactions::TransactionsEndpoint;
 use self::wallet::WalletEndpoint;
 use blockchain::BlockchainEndpoint;
 use reqwest::{Client, Url};
+use scan::ScanEndpoint;
 use serde::Serialize;
 use utils::UtilsEndpoint;
 
@@ -69,5 +71,9 @@ impl NodeEndpoint {
 
     pub fn blockchain(&self) -> Result<BlockchainEndpoint, NodeError> {
         BlockchainEndpoint::new(&self.client, self.url.clone())
+    }
+
+    pub fn scan(&self) -> Result<ScanEndpoint, NodeError> {
+        ScanEndpoint::new(&self.client, self.url.clone())
     }
 }
