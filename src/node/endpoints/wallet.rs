@@ -60,6 +60,13 @@ pub struct UnlockRequest {
 }
 
 impl<'a> WalletEndpoint<'a> {
+    pub async fn get_addresses(&self) -> Result<Vec<NetworkAddress>, NodeError> {
+        let mut url = self.url.clone();
+        url.path_segments_mut()
+            .map_err(|_| NodeError::BaseUrl)?
+            .push("addresses");
+        process_response(self.client.get(url).send().await.map_err(NodeError::Http)?).await
+    }
     pub async fn unlock(&self, password: String) -> Result<(), NodeError> {
         let mut url = self.url.clone();
         url.path_segments_mut()

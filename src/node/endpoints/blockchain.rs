@@ -35,6 +35,13 @@ pub struct IndexedBox {
     pub spent_transaction_id: Option<TxId>,
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct IndexedHeight {
+    pub indexed_height: u32,
+    pub full_height: u32,
+}
+
 #[derive(Debug, Clone)]
 pub struct BlockchainEndpoint<'a> {
     client: &'a Client,
@@ -51,6 +58,17 @@ impl<'a> BlockchainEndpoint<'a> {
 }
 
 impl<'a> BlockchainEndpoint<'a> {
+    pub async fn indexed_height(&self) -> Result<IndexedHeight, NodeError> {
+        let mut url = self.url.clone();
+        url.path_segments_mut()
+            .map_err(|_| NodeError::BaseUrl)?
+            .push("indexedHeight");
+        process_response::<IndexedHeight>(
+            self.client.get(url).send().await.map_err(NodeError::Http)?,
+        )
+        .await
+    }
+
     pub async fn unspent_by_address(
         &self,
         address: &str,
