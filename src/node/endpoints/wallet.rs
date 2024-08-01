@@ -9,6 +9,7 @@ use ergo_lib::{
 };
 use reqwest::{Client, Url};
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 
 #[derive(Debug, Clone)]
 pub struct WalletEndpoint<'a> {
@@ -67,6 +68,24 @@ impl<'a> WalletEndpoint<'a> {
             .push("addresses");
         process_response(self.client.get(url).send().await.map_err(NodeError::Http)?).await
     }
+
+    pub async fn rescan(&self, from_height: u32) -> Result<(), NodeError> {
+        let mut url = self.url.clone();
+        url.path_segments_mut()
+            .map_err(|_| NodeError::BaseUrl)?
+            .push("rescan");
+        process_response::<String>(
+            self.client
+                .post(url)
+                .json(&json!({ "fromHeight": from_height }))
+                .send()
+                .await
+                .map_err(NodeError::Http)?,
+        )
+        .await
+        .map(|_| ())
+    }
+
     pub async fn unlock(&self, password: String) -> Result<(), NodeError> {
         let mut url = self.url.clone();
         url.path_segments_mut()
