@@ -57,6 +57,21 @@ fn deserialize_register_id<'de, D: Deserializer<'de>>(
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "predicate")]
 pub enum TrackingRule {
+    #[serde(rename = "equals")]
+    Equals {
+        #[serde(
+            serialize_with = "serialize_register_id",
+            deserialize_with = "deserialize_register_id",
+            skip_serializing_if = "Option::is_none",
+            default
+        )]
+        register: Option<RegisterId>,
+        #[serde(
+            serialize_with = "serialize_constant",
+            deserialize_with = "deserialize_constant"
+        )]
+        value: Constant,
+    },
     #[serde(rename = "contains")]
     Contains {
         #[serde(
@@ -90,6 +105,14 @@ pub struct Scan<'a> {
     pub wallet_interaction: Cow<'a, str>,
     pub tracking_rule: TrackingRule,
     pub remove_offchain: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct RegisteredScan<'a> {
+    pub scan_id: u32,
+    #[serde(flatten)]
+    pub scan: Scan<'a>,
 }
 
 #[derive(Serialize, Debug)]
@@ -130,6 +153,7 @@ impl<'a> ScanEndpoint<'a> {
             .push("scan");
         Ok(Self { client, url })
     }
+
     pub async fn register<'s>(&self, scan: &Scan<'s>) -> Result<u32, NodeError> {
         #[derive(Deserialize)]
         #[serde(rename_all = "camelCase")]
@@ -166,7 +190,7 @@ impl<'a> ScanEndpoint<'a> {
         Ok(())
     }
 
-    pub async fn list_all(&self) -> Result<Vec<Scan<'static>>, NodeError> {
+    pub async fn list_all(&self) -> Result<Vec<RegisteredScan<'static>>, NodeError> {
         let mut url = self.url.clone();
         url.path_segments_mut()
             .map_err(|_| NodeError::BaseUrl)?
