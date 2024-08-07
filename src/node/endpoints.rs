@@ -1,4 +1,5 @@
 pub mod blockchain;
+pub mod blocks;
 pub mod root;
 pub mod scan;
 pub mod script;
@@ -11,6 +12,7 @@ use self::script::ScriptEndpoint;
 use self::transactions::TransactionsEndpoint;
 use self::wallet::WalletEndpoint;
 use blockchain::BlockchainEndpoint;
+use blocks::BlocksEndpoint;
 use reqwest::{Client, Url};
 use scan::ScanEndpoint;
 use serde::Serialize;
@@ -51,6 +53,10 @@ impl NodeEndpoint {
 
     pub fn root(&self) -> Result<RootEndpoint, NodeError> {
         RootEndpoint::new(&self.client, self.url.clone())
+    }
+
+    pub fn blocks(&self) -> Result<BlocksEndpoint, NodeError> {
+        BlocksEndpoint::new(&self.client, self.url.clone())
     }
 
     pub fn wallet(&self) -> Result<WalletEndpoint, NodeError> {

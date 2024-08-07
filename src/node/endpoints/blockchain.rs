@@ -1,5 +1,6 @@
 use ergo_lib::{
-    chain::transaction::{Transaction, TxId},
+    chain::transaction::{DataInput, TxId},
+    ergo_chain_types::BlockId,
     ergotree_ir::chain::ergo_box::{BoxId, ErgoBox},
 };
 use reqwest::Client;
@@ -33,6 +34,16 @@ pub struct IndexedBox {
     pub global_index: u64,
     #[serde(rename = "spentTransactionId")]
     pub spent_transaction_id: Option<TxId>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct IndexedTransaction {
+    pub id: TxId,
+    pub block_id: BlockId,
+    pub inputs: Vec<ErgoBox>,
+    pub outputs: Vec<ErgoBox>,
+    pub data_inputs: Vec<DataInput>,
 }
 
 #[derive(Deserialize)]
@@ -90,7 +101,10 @@ impl<'a> BlockchainEndpoint<'a> {
         .await
     }
 
-    pub async fn get_transaction_by_id(&self, tx_id: &TxId) -> Result<Transaction, NodeError> {
+    pub async fn get_transaction_by_id(
+        &self,
+        tx_id: &TxId,
+    ) -> Result<IndexedTransaction, NodeError> {
         let mut url = self.url.clone();
         let tx_id = tx_id.to_string();
         url.path_segments_mut()
