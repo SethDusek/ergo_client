@@ -54,7 +54,8 @@ fn deserialize_register_id<'de, D: Deserializer<'de>>(
         None => Ok(None),
     }
 }
-#[derive(Serialize, Deserialize, Debug, Clone)]
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(tag = "predicate")]
 pub enum TrackingRule {
     #[serde(rename = "equals")]
@@ -98,7 +99,7 @@ pub enum TrackingRule {
     Or { args: Vec<TrackingRule> },
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Scan<'a> {
     pub scan_name: Cow<'a, str>,
@@ -107,7 +108,7 @@ pub struct Scan<'a> {
     pub remove_offchain: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct RegisteredScan<'a> {
     pub scan_id: u32,
