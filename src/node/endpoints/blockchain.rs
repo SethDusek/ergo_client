@@ -1,10 +1,14 @@
 use ergo_lib::{
     chain::transaction::{DataInput, TxId},
     ergo_chain_types::BlockId,
-    ergotree_ir::chain::ergo_box::{BoxId, ErgoBox},
+    ergotree_ir::chain::{
+        ergo_box::{BoxId, ErgoBox},
+        token::TokenId,
+    },
 };
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use url::Url;
 
 use crate::node::{process_response, NodeError};
@@ -120,5 +124,25 @@ impl<'a> BlockchainEndpoint<'a> {
             .map_err(|_| NodeError::BaseUrl)?
             .extend(&["box", "byId", &box_id]);
         process_response(self.client.get(url).send().await.map_err(NodeError::Http)?).await
+    }
+
+    pub async fn get_unspent_boxes_by_token_id(
+        &self,
+        token_id: &str,
+        index_query: IndexQuery,
+    ) -> Result<Vec<IndexedBox>, NodeError> {
+        let mut url = self.url.clone();
+        url.path_segments_mut()
+            .map_err(|_| NodeError::BaseUrl)?
+            .extend(&["box", "unspent", "byTokenId", &token_id]);
+        Ok(process_response(
+            self.client
+                .get(url)
+                .query(&index_query)
+                .send()
+                .await
+                .map_err(NodeError::Http)?,
+        )
+        .await?)
     }
 }
