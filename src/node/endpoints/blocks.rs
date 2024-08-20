@@ -19,6 +19,20 @@ impl<'a> BlocksEndpoint<'a> {
         Ok(Self { client, url })
     }
 
+    /// Get header id at given height (/blocks/at/{blockHeight} endpoint)
+    pub async fn block_at_height(&self, block_height: u32) -> Result<Option<BlockId>, NodeError> {
+        let mut url = self.url.clone();
+        url.path_segments_mut()
+            .map_err(|_| NodeError::BaseUrl)?
+            .extend(&["at", &format!("{block_height}")]);
+        Ok(process_response::<Vec<BlockId>>(
+            self.client.get(url).send().await.map_err(NodeError::Http)?,
+        )
+        .await?
+        .get(0)
+        .cloned())
+    }
+
     pub async fn transactions(&self, block_id: &BlockId) -> Result<Vec<Transaction>, NodeError> {
         #[derive(Deserialize)]
         struct BlockTransactions {
