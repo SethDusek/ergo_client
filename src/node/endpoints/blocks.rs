@@ -1,4 +1,9 @@
-use ergo_lib::{chain::transaction::Transaction, ergo_chain_types::BlockId};
+use std::ops::Range;
+
+use ergo_lib::{
+    chain::transaction::Transaction,
+    ergo_chain_types::{BlockId, Header},
+};
 use reqwest::Client;
 use serde::Deserialize;
 use url::Url;
@@ -31,6 +36,22 @@ impl<'a> BlocksEndpoint<'a> {
         .await?
         .get(0)
         .cloned())
+    }
+
+    pub async fn chain_slice(&self, range: Range<u32>) -> Result<Vec<Header>, NodeError> {
+        let mut url = self.url.clone();
+        url.path_segments_mut()
+            .map_err(|_| NodeError::BaseUrl)?
+            .push("chainSlice");
+        Ok(process_response(
+            self.client
+                .get(url)
+                .query(&[("fromHeight", range.start), ("toHeight", range.end)])
+                .send()
+                .await
+                .map_err(NodeError::Http)?,
+        )
+        .await?)
     }
 
     pub async fn transactions(&self, block_id: &BlockId) -> Result<Vec<Transaction>, NodeError> {
