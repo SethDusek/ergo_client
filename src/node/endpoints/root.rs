@@ -20,6 +20,7 @@ pub struct InfoResponse {
     pub network: String,
     pub difficulty: u64,
     pub full_height: i32,
+    pub headers_height: i32,
 }
 
 impl<'a> RootEndpoint<'a> {
